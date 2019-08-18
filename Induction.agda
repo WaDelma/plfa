@@ -3,7 +3,7 @@ module plfa.Induction where
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; sym)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
-open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_)
+open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_; _^_)
 
 -- Exercise operators
 --
@@ -141,26 +141,144 @@ open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_)
   ∎
 
 -- Exercise *-distrib-+
-
-*-identity : ∀ (m : ℕ) → zero * m ≡ zero
-*-identity zero = refl
-*-identity (suc m) =
-  begin
-    zero * suc m
-  ≡⟨⟩
-    zero + zero * m
-  ≡⟨⟩
-    zero * m
-  ≡⟨ *-identity m ⟩
-    zero
-  ∎
-   
-
 *-distrib-+ : ∀ (m n p : ℕ) → (m + n) * p ≡ m * p + n * p
-*-distrib-+ m n zero = {!!}
-  {-begin
-    (m + n) * zero
-  ≡⟨⟩
-    ?
-  ∎-}
-*-distrib-+ m n (suc p) = {!!}
+*-distrib-+ zero n p = refl
+*-distrib-+ (suc m) n p
+  rewrite *-distrib-+ m n p
+  | +-assoc p (m * p) (n * p) = refl
+
+prev-cong : ∀ { m n : ℕ } → suc m ≡ suc n → m ≡ n
+prev-cong refl = refl
+
++-rev-congˡ : ∀ (n m p : ℕ) → p + n ≡ p + m → n ≡ m
++-rev-congˡ n m zero refl = refl
++-rev-congˡ n m (suc p) q
+ rewrite +-rev-congˡ n m p (prev-cong q) = refl
+
+-- Exercise *-assoc
+*-assoc : ∀ (m n p : ℕ) → (m * n) * p ≡ m * (n * p)
+*-assoc zero n p = refl
+*-assoc (suc m) n p
+  rewrite *-distrib-+ n (m * n) p
+  | *-assoc m n p = refl
+
+-- Exercise *-comm
+n*0=0 : ∀ (m : ℕ) → m * zero ≡ zero
+n*0=0 zero = refl
+n*0=0 (suc m)
+  rewrite n*0=0 m = refl
+
+*-defnˡ : ∀ (m n : ℕ) → n * suc m ≡ n + n * m
+*-defnˡ m zero = refl
+*-defnˡ m (suc n)
+  rewrite sym (+-assoc n m (n * m))
+  | +-comm n m
+  | +-assoc m n (n * m)
+  | sym (*-defnˡ m n) = refl
+
+*-comm : ∀ (m n : ℕ) → m * n ≡ n * m
+*-comm zero n
+  rewrite n*0=0 n = refl
+*-comm (suc m) n
+  rewrite *-defnˡ m n
+  | *-comm m n = refl
+
+-- Exercise 0∸n≡0
+∸-identity : ∀ (n : ℕ) → 0 ∸ n ≡ 0
+∸-identity zero = refl
+∸-identity (suc n) = refl
+
+-- Exercise ∸-|-assoc
+∸-|-assoc : ∀ (m n p : ℕ) → m ∸ n ∸ p ≡ m ∸ (n + p)
+∸-|-assoc zero zero p = refl
+∸-|-assoc zero (suc n) zero = refl
+∸-|-assoc zero (suc n) (suc p) = refl
+∸-|-assoc (suc m) zero p = refl
+∸-|-assoc (suc m) (suc n) p
+  rewrite ∸-|-assoc m n p = refl
+
+-- Exercise +*^
+1^n=1 : ∀ (n : ℕ) → 1 ^ n ≡ 1
+1^n=1 zero = refl
+1^n=1 (suc n)
+  rewrite +-identityʳ (1 ^ n)
+  | 1^n=1 n = refl
+
+0^sucn=1 : ∀ (n : ℕ) → 0 ^ (suc n) ≡ 0
+0^sucn=1 n = refl
+
+*-identity : ∀ (n : ℕ) → n * 1 ≡ n
+*-identity zero = refl
+*-identity (suc n)
+ rewrite *-identity n = refl
+
+^-+-*-assoc : ∀ (m n p : ℕ) → m ^ (n + p) ≡ (m ^ n) * (m ^ p)
+^-+-*-assoc m n zero
+  rewrite +-identityʳ n
+  | *-identity (m ^ n) = refl
+^-+-*-assoc m n (suc p)
+  rewrite +-comm n (suc p)
+  | sym (*-assoc (m ^ n) m (m ^ p))
+  | *-comm (m ^ n) m
+  | *-assoc m (m ^ n) (m ^ p)
+  | +-comm p n 
+  | ^-+-*-assoc m n p = refl
+
+*-^-assoc : ∀ (m n p : ℕ) → (m * n) ^ p ≡ (m ^ p) * (n ^ p)
+*-^-assoc m n zero = refl
+*-^-assoc m n (suc p)
+  rewrite sym (*-assoc (m * (m ^ p)) n (n ^ p))
+  | *-assoc m (m ^ p) n
+  | *-comm (m ^ p) n
+  | sym (*-assoc m n (m ^ p))
+  | *-assoc (m * n) (m ^ p) (n ^ p)
+  | *-^-assoc m n p = refl
+
+^-*-assoc : ∀ (m n p : ℕ) → m ^ (n * p) ≡ (m ^ n) ^ p
+^-*-assoc m n zero
+  rewrite n*0=0 n = refl
+^-*-assoc m n (suc p)
+  rewrite *-comm n (suc p)
+  | ^-+-*-assoc m n (p * n)
+  | *-comm p n
+  | ^-*-assoc m n p = refl
+
+data Bin : Set where
+  nil : Bin
+  x0_ : Bin → Bin
+  x1_ : Bin → Bin
+
+inc : Bin → Bin
+inc nil = x1 nil
+inc (x0 n) = x1 n
+inc (x1 n) = x0 inc n
+
+to : ℕ → Bin
+to zero = x0 nil
+to (suc n) = inc (to n)
+
+from' : Bin → ℕ → ℕ
+from' nil p = 0
+from' (x0 n) p = from' n (suc p)
+from' (x1 n) p = 2 ^ p + from' n (suc p)
+
+from : Bin → ℕ
+from n = from' n 0
+
+asd : ∀ (x : Bin) → from (x1 x) ≡ 1 + (from' x 1)
+asd nil = refl
+asd (x0 x) = refl
+asd (x1 x) = refl
+
+inc-suc-coincides : (x : Bin) → from (inc x) ≡ suc (from x)
+inc-suc-coincides nil = refl
+inc-suc-coincides (x0 x) = refl
+inc-suc-coincides (x1 x)
+ rewrite asd x = {!!}
+
+-- Bin-ℕ-iso : ∀ (x : Bin) → to (from x) ≡ x
+-- has no inhabitant because of trailing 0's
+
+ℕ-Bin-iso : ∀ (n : ℕ) → from (to n) ≡ n
+ℕ-Bin-iso zero = refl
+ℕ-Bin-iso (suc n) = {!!}
