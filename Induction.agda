@@ -277,7 +277,7 @@ inc-suc-coincides (x1 x)
  rewrite asd x = {!!}
 
 -- Bin-ℕ-iso : ∀ (x : Bin) → to (from x) ≡ x
--- has no inhabitant because of trailing 0's
+-- has no inhabitant because binary number with trailing zeroes maps to one without them
 
 ℕ-Bin-iso : ∀ (n : ℕ) → from (to n) ≡ n
 ℕ-Bin-iso zero = refl
