@@ -80,6 +80,44 @@ data _<_ : ℕ → ℕ → Set where
   s<s : ∀ {m n : ℕ} → m < n → suc m < suc n
 
 -- Exercise <-trans
+
+<-trans : ∀ {m n p : ℕ} → m < n → n < p → m < p
+<-trans z<s (s<s n<p) = z<s
+<-trans (s<s m<n) (s<s n<p) = s<s (<-trans m<n n<p)
+
+-- Exercise trichotomy
+
+data Trichotomy (m n : ℕ): Set where
+  less : m < n → Trichotomy m n
+  eq : m ≡ n → Trichotomy m n
+  more : n < m → Trichotomy m n
+
+cong-trichotomy : ∀ {m n : ℕ} → Trichotomy m n → Trichotomy (suc m) (suc n)
+cong-trichotomy t with t
+...  | less m<n = less (s<s m<n)
+...  | eq m≡n =  eq (cong suc m≡n)
+...  | more n<m = more (s<s n<m)
+
+trichotomy : ∀ (m n : ℕ) → Trichotomy m n
+trichotomy zero zero = eq refl
+trichotomy zero (suc n) = less z<s
+trichotomy (suc m) zero = more z<s
+trichotomy (suc m) (suc n) = cong-trichotomy (trichotomy m n)
+
+-- Exercise +-mono-<
++-monoʳ-< : ∀ (n p q : ℕ) → p < q → n + p < n + q
++-monoʳ-< zero p q p<q = p<q
++-monoʳ-< (suc n) p q p<q = s<s (+-monoʳ-< n p q p<q)
+
++-monoˡ-< : ∀ (m n p : ℕ) → m < n → m + p < n + p
++-monoˡ-< m n p m<n
+  rewrite +-comm m p
+  | +-comm n p = +-monoʳ-< p m n m<n
+
++-mono-< : ∀ (m n p q : ℕ) → m < n → p < q → m + p < n + q
++-mono-< m n p q m<n p<q = <-trans (+-monoˡ-< m n p m<n) (+-monoʳ-< n p q p<q)
+
+-- Exercise ≤-iff-<
 inv-s<s : ∀ {m n : ℕ} → suc m < suc n → m < n
 inv-s<s (s<s m<n) = m<n
 
@@ -95,7 +133,22 @@ inv-s<s (s<s m<n) = m<n
 <-implies-≤ {suc m} {zero} ()
 <-implies-≤ {suc m} {suc n} m<n = s≤s (<-implies-≤ (inv-s<s m<n))
 
-<-trans : ∀ {m n p : ℕ} → m < n → n < p → m < p
-<-trans z<s (s<s n<p) = z<s
-<-trans (s<s m<n) (s<s n<p) = s<s (<-trans m<n n<p)
+<-weaken : ∀ {m n : ℕ} → m < n → m < suc n
+<-weaken z<s = z<s
+<-weaken (s<s m<n) = s<s (<-weaken m<n)
+
+-- Exercise <-trans-revisited
+<-trans' : ∀ {m n p : ℕ} → m < n → n < p → m < p
+<-trans' m<s n<p = ≤-implies-< (≤-trans (<-implies-≤ (<-weaken m<s)) (<-implies-≤ n<p))
+
+data even : ℕ → Set
+data odd : ℕ → Set
+
+data even where
+  zero : even zero
+  suc : ∀ {n : ℕ} → odd n → even (suc n)
+
+data odd where
+  suc : ∀ {n : ℕ} → even n → odd (suc n)
+
 
