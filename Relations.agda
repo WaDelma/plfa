@@ -151,4 +151,66 @@ data even where
 data odd where
   suc : ∀ {n : ℕ} → even n → odd (suc n)
 
+e+e≡e : ∀ {m n : ℕ} → even m → even n → even (m + n)
+o+e≡o : ∀ {m n : ℕ} → odd m → even n → odd (m + n)
 
+e+e≡e zero en = en
+e+e≡e (suc om) en = suc (o+e≡o om en)
+
+o+e≡o (suc em) en = suc (e+e≡e em en)
+
+-- Exercise o+o≡e
++-comm-odd : ∀ {m n : ℕ} → odd (m + n) → odd (n + m)
++-comm-odd {zero} {n} on = o+e≡o on zero
++-comm-odd {suc m} {n} omn
+  rewrite +-comm n (suc m) = omn
+
+o+o≡e : ∀ {m n : ℕ} → odd m → odd n → even (m + n)
+o+o≡e {suc m} {n} (suc em) on  = suc (+-comm-odd {n} {m} (o+e≡o on em))
+
+-- Exercise Bin-predicates
+
+open import plfa.Induction using (Bin; x1_; x0_; nil; inc; to; from)
+
+data One : Bin → Set where
+  one : One (x1 nil)
+  a0_ : ∀ {x : Bin} → One x → One (x0 x)
+  a1_ : ∀ {x : Bin} → One x → One (x1 x)
+  
+
+data Can : Bin → Set where
+  zero : Can (x0 nil)
+  one : ∀ {x : Bin} → One x → Can x
+
+inc-preserves-one : ∀ {x : Bin} → One x → One (inc x)
+inc-preserves-one {.(x1 nil)} one = a0 one
+inc-preserves-one {.(x0 _)} (a0 ox) = a1 ox
+inc-preserves-one {.(x1 _)} (a1 ox) = a0 (inc-preserves-one ox)
+
+inc-preserves-can : ∀ {x : Bin} → Can x → Can (inc x)
+inc-preserves-can zero =  one one
+inc-preserves-can (one ox) = one (inc-preserves-one ox)
+
+can-to : ∀ (n : ℕ) → Can (to n)
+can-to zero = zero
+can-to (suc n) = inc-preserves-can (can-to n)
+
+asd : ∀ {x : Bin} → One x → x0 to (from x) ≡ to (from (x0 x))
+one-to-from : ∀ {x : Bin} → One x → to (from x) ≡ x
+
+asd one = refl
+asd (a0 ox) 
+  rewrite one-to-from (a0 ox)
+  | one-to-from (a0 a0 ox) = refl
+asd {x} (a1 ox) -- = {!!}
+  rewrite one-to-from ox = {!!}
+--  rewrite one-to-from (a1 ox)
+--  | one-to-from (a1 a1 ox) = {!!}
+
+one-to-from one = refl
+one-to-from (a0 ox) = {!cong x0_ (one-to-from ox)!}
+one-to-from (a1 ox) = {!!}
+
+can-iso : ∀ {x : Bin} → Can x → to (from x) ≡ x
+can-iso zero = refl
+can-iso (one ox) = one-to-from ox

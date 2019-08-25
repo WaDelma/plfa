@@ -265,20 +265,6 @@ from' (x1 n) p = 2 ^ p + from' n (suc p)
 from : Bin → ℕ
 from n = from' n 0
 
-asd : ∀ (x : Bin) → from (x1 x) ≡ 1 + (from' x 1)
-asd nil = refl
-asd (x0 x) = refl
-asd (x1 x) = refl
-
-inc-suc-coincides : (x : Bin) → from (inc x) ≡ suc (from x)
-inc-suc-coincides nil = refl
-inc-suc-coincides (x0 x) = refl
-inc-suc-coincides (x1 x)
- rewrite asd x = {!!}
-
 -- Bin-ℕ-iso : ∀ (x : Bin) → to (from x) ≡ x
 -- has no inhabitant because binary number with trailing zeroes maps to one without them
 
-ℕ-Bin-iso : ∀ (n : ℕ) → from (to n) ≡ n
-ℕ-Bin-iso zero = refl
-ℕ-Bin-iso (suc n) = {!!}
