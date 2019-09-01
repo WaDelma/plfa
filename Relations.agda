@@ -195,20 +195,20 @@ can-to : ∀ (n : ℕ) → Can (to n)
 can-to zero = zero
 can-to (suc n) = inc-preserves-can (can-to n)
 
-asd : ∀ {x : Bin} → One x → x0 to (from x) ≡ to (from (x0 x))
+one-to : ∀ {n : ℕ} → One (to (suc n))
+one-to {zero} = one
+one-to {suc n} = inc-preserves-one (one-to {n})
+
+asd : ∀ (x : Bin) → One x →  x0 (to (from x)) ≡ to (from (x0 x))
+asd nil ()
+asd (x0 x) (a0 ox) = {!!}
+asd (x1 .nil) one = refl
+asd (x1 x) (a1 ox) = {!!}
+
 one-to-from : ∀ {x : Bin} → One x → to (from x) ≡ x
-
-asd one = refl
-asd (a0 ox) 
-  rewrite one-to-from (a0 ox)
-  | one-to-from (a0 a0 ox) = refl
-asd {x} (a1 ox) -- = {!!}
-  rewrite one-to-from ox = {!!}
---  rewrite one-to-from (a1 ox)
---  | one-to-from (a1 a1 ox) = {!!}
-
 one-to-from one = refl
-one-to-from (a0 ox) = {!cong x0_ (one-to-from ox)!}
+one-to-from {x} (a0 ox) = {!!}
+--  rewrite one-to-from (one-to (from x)) = {!!}
 one-to-from (a1 ox) = {!!}
 
 can-iso : ∀ {x : Bin} → Can x → to (from x) ≡ x
