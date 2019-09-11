@@ -3,7 +3,7 @@ module plfa.Relations where
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; sym)
 open import Data.Nat using (ℕ; zero; suc; _+_; _*_)
-open import Data.Nat.Properties using (+-comm; *-comm)
+open import Data.Nat.Properties using (+-comm; +-identityʳ; *-comm)
 
 data _≤_ : ℕ → ℕ → Set where
   z≤n : ∀ {n : ℕ} → zero ≤ n
@@ -162,7 +162,7 @@ o+e≡o (suc em) en = suc (e+e≡e em en)
 -- Exercise o+o≡e
 +-comm-odd : ∀ {m n : ℕ} → odd (m + n) → odd (n + m)
 +-comm-odd {zero} {n} on = o+e≡o on zero
-+-comm-odd {suc m} {n} omn
++-comm-odd {suc m} {n} omn 
   rewrite +-comm n (suc m) = omn
 
 o+o≡e : ∀ {m n : ℕ} → odd m → odd n → even (m + n)
@@ -191,26 +191,45 @@ inc-preserves-can : ∀ {x : Bin} → Can x → Can (inc x)
 inc-preserves-can zero =  one one
 inc-preserves-can (one ox) = one (inc-preserves-one ox)
 
-can-to : ∀ (n : ℕ) → Can (to n)
-can-to zero = zero
-can-to (suc n) = inc-preserves-can (can-to n)
+can-to : ∀ {n : ℕ} → Can (to n)
+can-to {zero} = zero
+can-to {suc n} = inc-preserves-can (can-to {n})
 
 one-to : ∀ {n : ℕ} → One (to (suc n))
 one-to {zero} = one
 one-to {suc n} = inc-preserves-one (one-to {n})
 
-asd : ∀ (x : Bin) → One x →  x0 (to (from x)) ≡ to (from (x0 x))
-asd nil ()
-asd (x0 x) (a0 ox) = {!!}
-asd (x1 .nil) one = refl
-asd (x1 x) (a1 ox) = {!!}
+olo : ∀ {n : ℕ} → 0 < n → to (1 + 2 * n) ≡ x1 to n
+olo {.1} (z<s {zero}) = refl
+olo {.(suc (suc n))} (z<s {suc n}) = {!!}
 
-one-to-from : ∀ {x : Bin} → One x → to (from x) ≡ x
-one-to-from one = refl
-one-to-from {x} (a0 ox) = {!!}
---  rewrite one-to-from (one-to (from x)) = {!!}
-one-to-from (a1 ox) = {!!}
+aha : ∀ {n : ℕ} → to (2 * n) ≡ x0 to n
+aha {n} = {!!}
+
+lol : ∀ {x : Bin} → One x → from (x1 x) ≡ 1 + 2 * from x
+hah : ∀ {x : Bin} → One x → from (x0 x) ≡ 2 * from x
+
+lol one = refl
+lol {x} (a0 ox) rewrite +-identityʳ (from x) = {!!}
+lol {x} (a1 ox) rewrite +-identityʳ (from x) = {!!}
+
+hah one = refl
+hah {x} (a0 ox) rewrite +-identityʳ (from x) = {!!}
+hah {x} (a1 ox) rewrite +-identityʳ (from x) = {!!}
+
+asd : ∀ {x : Bin} → One x → to (from (x0 x)) ≡ x0 (to (from x))
+asd1 : ∀ {x : Bin} → One x → to (from (x1 x)) ≡ x1 (to (from x))
+
+asd one = refl
+asd {x} (a0 ox) rewrite hah (a0 ox) | aha {from x}  = refl
+asd (a1 ox) rewrite asd1 ox = {!!}
+
+asd1 one = refl
+asd1 (a0 ox) rewrite asd ox = {!!}
+asd1 {x} (a1 ox) = {!!}
 
 can-iso : ∀ {x : Bin} → Can x → to (from x) ≡ x
 can-iso zero = refl
-can-iso (one ox) = one-to-from ox
+can-iso (one one) = refl
+can-iso (one (a0 ox)) rewrite asd ox | can-iso (one ox) = refl
+can-iso (one (a1 ox)) rewrite asd1 ox | can-iso (one ox) = refl
