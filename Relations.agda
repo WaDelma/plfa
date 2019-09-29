@@ -170,22 +170,22 @@ o+o≡e {suc m} {n} (suc em) on  = suc (+-comm-odd {n} {m} (o+e≡o on em))
 
 -- Exercise Bin-predicates
 
-open import plfa.Induction using (Bin; x1_; x0_; nil; inc; to; from)
+open import plfa.Induction using (Bin; _I; _O; ⟨⟩; inc; to; from)
 
 data One : Bin → Set where
-  one : One (x1 nil)
-  a0_ : ∀ {x : Bin} → One x → One (x0 x)
-  a1_ : ∀ {x : Bin} → One x → One (x1 x)
+  one : One (⟨⟩ I)
+  aO : ∀ {x : Bin} → One x → One (x O)
+  aI : ∀ {x : Bin} → One x → One (x I)
   
 
 data Can : Bin → Set where
-  zero : Can (x0 nil)
+  zero : Can (⟨⟩ O)
   one : ∀ {x : Bin} → One x → Can x
 
 inc-preserves-one : ∀ {x : Bin} → One x → One (inc x)
-inc-preserves-one {.(x1 nil)} one = a0 one
-inc-preserves-one {.(x0 _)} (a0 ox) = a1 ox
-inc-preserves-one {.(x1 _)} (a1 ox) = a0 (inc-preserves-one ox)
+inc-preserves-one {.(⟨⟩ I)} one = aO one
+inc-preserves-one {.(_ O)} (aO ox) = aI ox
+inc-preserves-one {.(_ I)} (aI ox) = aO (inc-preserves-one ox)
 
 inc-preserves-can : ∀ {x : Bin} → Can x → Can (inc x)
 inc-preserves-can zero =  one one
@@ -199,37 +199,30 @@ one-to : ∀ {n : ℕ} → One (to (suc n))
 one-to {zero} = one
 one-to {suc n} = inc-preserves-one (one-to {n})
 
-olo : ∀ {n : ℕ} → 0 < n → to (1 + 2 * n) ≡ x1 to n
-olo {.1} (z<s {zero}) = refl
-olo {.(suc (suc n))} (z<s {suc n}) = {!!}
+2x_ : Bin → Bin
+2x (⟨⟩ O) = ⟨⟩ O
+2x x = x O
 
-aha : ∀ {n : ℕ} → to (2 * n) ≡ x0 to n
-aha {n} = {!!}
+asd : ∀ {n : ℕ} → to (2 * n) ≡ 2x to n
+asd {zero} = refl
+asd {suc n} rewrite +-identityʳ n = {!!}
 
-lol : ∀ {x : Bin} → One x → from (x1 x) ≡ 1 + 2 * from x
-hah : ∀ {x : Bin} → One x → from (x0 x) ≡ 2 * from x
+one-iso-O : ∀ {x : Bin} → One x → to (from (x O)) ≡ (to (from x)) O
+one-iso-I : ∀ {x : Bin} → One x → to (from (x I)) ≡ (to (from x)) I
 
-lol one = refl
-lol {x} (a0 ox) rewrite +-identityʳ (from x) = {!!}
-lol {x} (a1 ox) rewrite +-identityʳ (from x) = {!!}
+one-iso-O one = refl
+one-iso-O (aO {x} ox) = {!!}
+ -- rewrite +-identityʳ (from x)
+ -- | +-identityʳ (from x + from x) = {!!}
+one-iso-O (aI {x} ox) rewrite one-iso-I ox
+ | +-identityʳ (from x) = {!!}
 
-hah one = refl
-hah {x} (a0 ox) rewrite +-identityʳ (from x) = {!!}
-hah {x} (a1 ox) rewrite +-identityʳ (from x) = {!!}
-
-asd : ∀ {x : Bin} → One x → to (from (x0 x)) ≡ x0 (to (from x))
-asd1 : ∀ {x : Bin} → One x → to (from (x1 x)) ≡ x1 (to (from x))
-
-asd one = refl
-asd {x} (a0 ox) rewrite hah (a0 ox) | aha {from x}  = refl
-asd (a1 ox) rewrite asd1 ox = {!!}
-
-asd1 one = refl
-asd1 (a0 ox) rewrite asd ox = {!!}
-asd1 {x} (a1 ox) = {!!}
+one-iso-I one = refl
+one-iso-I (aO ox) rewrite one-iso-O ox = {!!}
+one-iso-I (aI ox) = {!!}
 
 can-iso : ∀ {x : Bin} → Can x → to (from x) ≡ x
 can-iso zero = refl
 can-iso (one one) = refl
-can-iso (one (a0 ox)) rewrite asd ox | can-iso (one ox) = refl
-can-iso (one (a1 ox)) rewrite asd1 ox | can-iso (one ox) = refl
+can-iso (one (aO ox)) rewrite one-iso-O ox | can-iso (one ox) = refl
+can-iso (one (aI ox)) rewrite one-iso-I ox | can-iso (one ox) = refl

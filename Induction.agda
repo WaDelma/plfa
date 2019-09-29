@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 module plfa.Induction where
 
 import Relation.Binary.PropositionalEquality as Eq
@@ -143,7 +142,7 @@ open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_; _^_)
 
 -- Exercise *-distrib-+
 *-distrib-+ : ∀ (m n p : ℕ) → (m + n) * p ≡ m * p + n * p
-*-distrib-+ zero n p = {!refl!}
+*-distrib-+ zero n p = refl
 *-distrib-+ (suc m) n p
   rewrite *-distrib-+ m n p
   | +-assoc p (m * p) (n * p) = refl
@@ -245,26 +244,23 @@ n*0=0 (suc m)
   | ^-*-assoc m n p = refl
 
 data Bin : Set where
-  nil : Bin
-  x0_ : Bin → Bin
-  x1_ : Bin → Bin
+  ⟨⟩ : Bin
+  _O : Bin → Bin
+  _I : Bin → Bin
 
 inc : Bin → Bin
-inc nil = x1 nil
-inc (x0 n) = x1 n
-inc (x1 n) = x0 inc n
+inc ⟨⟩ = ⟨⟩ I
+inc (n O) = n I
+inc (n I) = inc n O
 
 to : ℕ → Bin
-to zero = x0 nil
+to zero = ⟨⟩ O
 to (suc n) = inc (to n)
 
-from' : Bin → ℕ → ℕ
-from' nil p = 0
-from' (x0 n) p = from' n (suc p)
-from' (x1 n) p = 2 ^ p + from' n (suc p)
-
 from : Bin → ℕ 
-from n = from' n 0
+from ⟨⟩ = 0
+from (x O) = 2 * from x
+from (x I) = 1 + 2 * from x
 
 -- Bin-ℕ-iso : ∀ (x : Bin) → to (from x) ≡ x
 -- has no inhabitant because binary number with trailing zeroes maps to one without them
