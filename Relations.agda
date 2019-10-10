@@ -199,21 +199,69 @@ one-to : ∀ {n : ℕ} → One (to (suc n))
 one-to {zero} = one
 one-to {suc n} = inc-preserves-one (one-to {n})
 
+2x' : ∀{x : Bin} → One x → Bin
+2x' {⟨⟩} ()
+2x' {x O} (aO ox) = x O O
+2x' {.⟨⟩ I} one = ⟨⟩ I O
+2x' {x I} (aI ox) = x I O
+
+one-2x' : ∀{x : Bin} → ∀(ox : One x) → One (2x' ox)
+one-2x' {.(⟨⟩ I)} one = aO one
+one-2x' {.(_ O)} (aO ox) = aO (aO ox)
+one-2x' {.(_ I)} (aI ox) = aO (aI ox)
+
 2x_ : Bin → Bin
 2x (⟨⟩ O) = ⟨⟩ O
 2x x = x O
 
-asd : ∀ {n : ℕ} → to (2 * n) ≡ 2x to n
-asd {zero} = refl
-asd {suc n} rewrite +-identityʳ n = {!!}
+2x-O : ∀{x : Bin} → One x → 2x x ≡ x O
+2x-O one = refl
+2x-O (aO one) = refl
+2x-O (aO (aO x)) = refl
+2x-O (aO (aI x)) = refl
+2x-O (aI one) = refl
+2x-O (aI (aO x)) = refl
+2x-O (aI (aI x)) = refl
+
+n+n≡2n : ∀(n : ℕ) → n + n ≡ 2 * n
+n+n≡2n n rewrite +-identityʳ n = refl
+
+2x-inc : ∀(x : Bin) → inc (inc (2x x)) ≡ 2x inc x
+2x-inc ⟨⟩ = refl
+2x-inc (⟨⟩ O) = refl
+2x-inc ((x O) O) = refl
+2x-inc ((x I) O) = refl
+2x-inc (⟨⟩ I) = refl
+2x-inc ((x O) I) = refl
+2x-inc ((x I) I) = refl
+
+2n≡2x : ∀ (n : ℕ) → to (2 * n) ≡ 2x to n
+2n≡2x zero = refl
+2n≡2x (suc n) rewrite +-identityʳ n
+ | +-comm n (suc n)
+ | n+n≡2n n
+ | 2n≡2x n
+ | 2x-inc (to n) = refl
+
+inc≡+1 : ∀ (n : ℕ) → to (n + 1) ≡ inc (to n)
+inc≡+1 zero = refl
+inc≡+1 (suc n) rewrite inc≡+1 n = refl
+
+asd : ∀ {x : Bin} → One x → 2x to (from x) ≡ to (from x) O
+asd {⟨⟩} ()
+asd {x O} (aO ox) rewrite 2n≡2x (from x) = {!!}
+asd {.⟨⟩ I} one = refl
+asd {x I} (aI ox) rewrite 2n≡2x (from x) = {!!}
 
 one-iso-O : ∀ {x : Bin} → One x → to (from (x O)) ≡ (to (from x)) O
 one-iso-I : ∀ {x : Bin} → One x → to (from (x I)) ≡ (to (from x)) I
 
 one-iso-O one = refl
-one-iso-O (aO {x} ox) = {!!}
- -- rewrite +-identityʳ (from x)
- -- | +-identityʳ (from x + from x) = {!!}
+one-iso-O (aO {x} ox)
+ rewrite +-identityʳ (from x)
+ | 2n≡2x (from x + from x)
+ | n+n≡2n (from x)
+ | 2n≡2x (from x) = {!!}
 one-iso-O (aI {x} ox) rewrite one-iso-I ox
  | +-identityʳ (from x) = {!!}
 
