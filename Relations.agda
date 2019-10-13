@@ -1,9 +1,9 @@
 module plfa.Relations where
 
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl; cong; sym)
+open Eq using (_≡_; refl; cong; sym; subst)
 open import Data.Nat using (ℕ; zero; suc; _+_; _*_)
-open import Data.Nat.Properties using (+-comm; +-identityʳ; *-comm)
+open import Data.Nat.Properties using (+-comm; +-assoc; +-identityʳ; *-comm)
 
 data _≤_ : ℕ → ℕ → Set where
   z≤n : ∀ {n : ℕ} → zero ≤ n
@@ -105,17 +105,16 @@ trichotomy (suc m) zero = more z<s
 trichotomy (suc m) (suc n) = cong-trichotomy (trichotomy m n)
 
 -- Exercise +-mono-<
-+-monoʳ-< : ∀ (n p q : ℕ) → p < q → n + p < n + q
-+-monoʳ-< zero p q p<q = p<q
-+-monoʳ-< (suc n) p q p<q = s<s (+-monoʳ-< n p q p<q)
++-monoʳ-< : ∀ {p q : ℕ} → ∀(n : ℕ) → p < q → n + p < n + q
++-monoʳ-< zero p<q = p<q
++-monoʳ-< (suc n) p<q = s<s (+-monoʳ-< n p<q)
 
-+-monoˡ-< : ∀ (m n p : ℕ) → m < n → m + p < n + p
-+-monoˡ-< m n p m<n
-  rewrite +-comm m p
-  | +-comm n p = +-monoʳ-< p m n m<n
++-monoˡ-< : ∀ {m n : ℕ} → ∀(p : ℕ) → m < n → m + p < n + p
++-monoˡ-< {m} {n} p m<n rewrite +-comm m p
+ | +-comm n p = +-monoʳ-< p m<n
 
-+-mono-< : ∀ (m n p q : ℕ) → m < n → p < q → m + p < n + q
-+-mono-< m n p q m<n p<q = <-trans (+-monoˡ-< m n p m<n) (+-monoʳ-< n p q p<q)
++-mono-< : ∀ {m n p q : ℕ} → m < n → p < q → m + p < n + q
++-mono-< {m} {n} {p} {q}  m<n p<q = <-trans (+-monoˡ-< p m<n) (+-monoʳ-< n p<q)
 
 -- Exercise ≤-iff-<
 inv-s<s : ∀ {m n : ℕ} → suc m < suc n → m < n
@@ -195,79 +194,99 @@ can-to : ∀ {n : ℕ} → Can (to n)
 can-to {zero} = zero
 can-to {suc n} = inc-preserves-can (can-to {n})
 
-one-to : ∀ {n : ℕ} → One (to (suc n))
-one-to {zero} = one
-one-to {suc n} = inc-preserves-one (one-to {n})
+one-to : ∀(n : ℕ) → One (to (suc n))
+one-to zero = one
+one-to (suc n) = inc-preserves-one (one-to n)
 
-2x' : ∀{x : Bin} → One x → Bin
-2x' {⟨⟩} ()
-2x' {x O} (aO ox) = x O O
-2x' {.⟨⟩ I} one = ⟨⟩ I O
-2x' {x I} (aI ox) = x I O
+2x : ∀{x : Bin} → One x → Bin
+2x {⟨⟩} ()
+2x {x O} (aO ox) = x O O
+2x {.⟨⟩ I} one = ⟨⟩ I O
+2x {x I} (aI ox) = x I O
 
-one-2x' : ∀{x : Bin} → ∀(ox : One x) → One (2x' ox)
-one-2x' {.(⟨⟩ I)} one = aO one
-one-2x' {.(_ O)} (aO ox) = aO (aO ox)
-one-2x' {.(_ I)} (aI ox) = aO (aI ox)
-
-2x_ : Bin → Bin
-2x (⟨⟩ O) = ⟨⟩ O
-2x x = x O
-
-2x-O : ∀{x : Bin} → One x → 2x x ≡ x O
-2x-O one = refl
-2x-O (aO one) = refl
-2x-O (aO (aO x)) = refl
-2x-O (aO (aI x)) = refl
-2x-O (aI one) = refl
-2x-O (aI (aO x)) = refl
-2x-O (aI (aI x)) = refl
+one-2x : ∀{x : Bin} → ∀(ox : One x) → One (2x ox)
+one-2x {.(⟨⟩ I)} one = aO one
+one-2x {.(_ O)} (aO ox) = aO (aO ox)
+one-2x {.(_ I)} (aI ox) = aO (aI ox)
 
 n+n≡2n : ∀(n : ℕ) → n + n ≡ 2 * n
 n+n≡2n n rewrite +-identityʳ n = refl
 
-2x-inc : ∀(x : Bin) → inc (inc (2x x)) ≡ 2x inc x
-2x-inc ⟨⟩ = refl
-2x-inc (⟨⟩ O) = refl
-2x-inc ((x O) O) = refl
-2x-inc ((x I) O) = refl
-2x-inc (⟨⟩ I) = refl
-2x-inc ((x O) I) = refl
-2x-inc ((x I) I) = refl
+2x-inc : ∀{x : Bin} → ∀(ox : One x) → inc (inc (2x ox)) ≡ 2x (inc-preserves-one ox)
+2x-inc one = refl
+2x-inc (aO ox) = refl
+2x-inc (aI ox) = refl
 
-2n≡2x : ∀ (n : ℕ) → to (2 * n) ≡ 2x to n
+2n≡2x : ∀ (n : ℕ) → to (2 * (suc n)) ≡ 2x (one-to n)
 2n≡2x zero = refl
-2n≡2x (suc n) rewrite +-identityʳ n
- | +-comm n (suc n)
- | n+n≡2n n
- | 2n≡2x n
- | 2x-inc (to n) = refl
+2n≡2x (suc n)
+ rewrite sym (2x-inc (one-to n))
+ | sym (2n≡2x n)
+ | +-identityʳ n
+ | +-comm n (suc (suc n))
+ | +-comm n (suc n) = refl
 
 inc≡+1 : ∀ (n : ℕ) → to (n + 1) ≡ inc (to n)
 inc≡+1 zero = refl
 inc≡+1 (suc n) rewrite inc≡+1 n = refl
 
-asd : ∀ {x : Bin} → One x → 2x to (from x) ≡ to (from x) O
-asd {⟨⟩} ()
-asd {x O} (aO ox) rewrite 2n≡2x (from x) = {!!}
-asd {.⟨⟩ I} one = refl
-asd {x I} (aI ox) rewrite 2n≡2x (from x) = {!!}
+<-weaken-+ : ∀{n m : ℕ} → ∀(o : ℕ) → n < m → n < o + m
+<-weaken-+ zero x = x
+<-weaken-+ (suc o) z<s = z<s
+<-weaken-+ (suc o) (s<s x) = s<s (<-weaken-+ o (<-weaken x))
+
+one-suc : ∀{x : Bin} → One x → 0 < from x
+one-suc one = z<s
+one-suc (aO {x} ox) rewrite +-identityʳ (from x) = let as = one-suc ox in +-mono-< as as
+one-suc (aI {x} ox) = z<s
+
+open import Data.Product using (Σ; _,_; Σ-syntax)
+
++-mono-≡ : ∀ {m n p q : ℕ} → m ≡ n → p ≡ q → m + p ≡ n + q
++-mono-≡ refl refl = refl
+
+-- asd : ∀ (x : Bin) → One x → Σ[ n ∈ ℕ ] (from x ≡ suc n)
+-- lel : ∀ (x : Bin) → ∀ (ox : One x) → from x + (from x + zero) ≡ suc (Σ.proj₁ (asd x ox) + Σ.proj₁ (asd x ox))
+
+-- lel x ox rewrite +-identityʳ (from x)
+--  | +-identityʳ (Σ.proj₁ (asd x ox)) = let z = Σ.proj₂ (asd x ox) in {!+-mono-≡ z z!}
+
+-- asd ⟨⟩ ()
+-- asd (x O) (aO ox) = ( Σ.proj₁ (asd x ox) + Σ.proj₁ (asd x ox), lel x ox )
+-- asd (.⟨⟩ I) one = ( zero , refl )
+-- asd (x I) (aI ox) = {!!}
+
+n+ss≡s+s : ∀(n m : ℕ) → n + suc (suc n) ≡ suc n + suc n
+n+ss≡s+s n m rewrite +-comm n (suc n)
+ | +-comm n (suc (suc n))= refl
+
+n+n≡2x : ∀{n : ℕ} → 0 < n → to (n + n) ≡ to n O
+n+n≡2x {.1} (z<s {zero}) = refl
+n+n≡2x {.(suc (suc n))} (z<s {suc n}) rewrite n+ss≡s+s n n
+ | n+n≡2x {suc n} z<s  = refl
 
 one-iso-O : ∀ {x : Bin} → One x → to (from (x O)) ≡ (to (from x)) O
 one-iso-I : ∀ {x : Bin} → One x → to (from (x I)) ≡ (to (from x)) I
 
 one-iso-O one = refl
 one-iso-O (aO {x} ox)
- rewrite +-identityʳ (from x)
- | 2n≡2x (from x + from x)
- | n+n≡2n (from x)
- | 2n≡2x (from x) = {!!}
-one-iso-O (aI {x} ox) rewrite one-iso-I ox
- | +-identityʳ (from x) = {!!}
+ rewrite +-identityʳ (from x + from x)
+ | +-identityʳ (from x)
+ | +-identityʳ (from x + from x)
+ | +-identityʳ (from x)
+ | n+n≡2x (+-mono-< (one-suc ox) (one-suc ox)) = refl
+one-iso-O (aI {x} ox) = {!!}
+ -- rewrite one-iso-I ox
+ -- | +-identityʳ (from x) = {!!}
 
 one-iso-I one = refl
 one-iso-I (aO ox) rewrite one-iso-O ox = {!!}
-one-iso-I (aI ox) = {!!}
+one-iso-I (aI {x} ox)
+ rewrite +-identityʳ (from x + from x)
+ | +-identityʳ (from x)
+ | +-comm (from x + from x) (suc (from x + from x + 0))
+ | +-identityʳ (from x + from x)
+ | n+n≡2x (+-mono-< (one-suc ox) (one-suc ox)) = refl
 
 can-iso : ∀ {x : Bin} → Can x → to (from x) ≡ x
 can-iso zero = refl
