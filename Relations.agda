@@ -204,13 +204,13 @@ one-to (suc n) = inc-preserves-one (one-to n)
 2x {.⟨⟩ I} one = ⟨⟩ I O
 2x {x I} (aI ox) = x I O
 
-one-2x : ∀{x : Bin} → ∀(ox : One x) → One (2x ox)
-one-2x {.(⟨⟩ I)} one = aO one
-one-2x {.(_ O)} (aO ox) = aO (aO ox)
-one-2x {.(_ I)} (aI ox) = aO (aI ox)
+-- one-2x : ∀{x : Bin} → ∀(ox : One x) → One (2x ox)
+-- one-2x {.(⟨⟩ I)} one = aO one
+-- one-2x {.(_ O)} (aO ox) = aO (aO ox)
+-- one-2x {.(_ I)} (aI ox) = aO (aI ox)
 
-n+n≡2n : ∀(n : ℕ) → n + n ≡ 2 * n
-n+n≡2n n rewrite +-identityʳ n = refl
+-- n+n≡2n : ∀(n : ℕ) → n + n ≡ 2 * n
+-- n+n≡2n n rewrite +-identityʳ n = refl
 
 2x-inc : ∀{x : Bin} → ∀(ox : One x) → inc (inc (2x ox)) ≡ 2x (inc-preserves-one ox)
 2x-inc one = refl
@@ -226,35 +226,22 @@ n+n≡2n n rewrite +-identityʳ n = refl
  | +-comm n (suc (suc n))
  | +-comm n (suc n) = refl
 
-inc≡+1 : ∀ (n : ℕ) → to (n + 1) ≡ inc (to n)
-inc≡+1 zero = refl
-inc≡+1 (suc n) rewrite inc≡+1 n = refl
+-- inc≡+1 : ∀ (n : ℕ) → to (n + 1) ≡ inc (to n)
+-- inc≡+1 zero = refl
+-- inc≡+1 (suc n) rewrite inc≡+1 n = refl
 
-<-weaken-+ : ∀{n m : ℕ} → ∀(o : ℕ) → n < m → n < o + m
-<-weaken-+ zero x = x
-<-weaken-+ (suc o) z<s = z<s
-<-weaken-+ (suc o) (s<s x) = s<s (<-weaken-+ o (<-weaken x))
+-- <-weaken-+ : ∀{n m : ℕ} → ∀(o : ℕ) → n < m → n < o + m
+-- <-weaken-+ zero x = x
+-- <-weaken-+ (suc o) z<s = z<s
+-- <-weaken-+ (suc o) (s<s x) = s<s (<-weaken-+ o (<-weaken x))
 
 one-suc : ∀{x : Bin} → One x → 0 < from x
 one-suc one = z<s
 one-suc (aO {x} ox) rewrite +-identityʳ (from x) = let as = one-suc ox in +-mono-< as as
 one-suc (aI {x} ox) = z<s
 
-open import Data.Product using (Σ; _,_; Σ-syntax)
-
-+-mono-≡ : ∀ {m n p q : ℕ} → m ≡ n → p ≡ q → m + p ≡ n + q
-+-mono-≡ refl refl = refl
-
--- asd : ∀ (x : Bin) → One x → Σ[ n ∈ ℕ ] (from x ≡ suc n)
--- lel : ∀ (x : Bin) → ∀ (ox : One x) → from x + (from x + zero) ≡ suc (Σ.proj₁ (asd x ox) + Σ.proj₁ (asd x ox))
-
--- lel x ox rewrite +-identityʳ (from x)
---  | +-identityʳ (Σ.proj₁ (asd x ox)) = let z = Σ.proj₂ (asd x ox) in {!+-mono-≡ z z!}
-
--- asd ⟨⟩ ()
--- asd (x O) (aO ox) = ( Σ.proj₁ (asd x ox) + Σ.proj₁ (asd x ox), lel x ox )
--- asd (.⟨⟩ I) one = ( zero , refl )
--- asd (x I) (aI ox) = {!!}
+-- +-mono-≡ : ∀ {m n p q : ℕ} → m ≡ n → p ≡ q → m + p ≡ n + q
+-- +-mono-≡ refl refl = refl
 
 n+ss≡s+s : ∀(n m : ℕ) → n + suc (suc n) ≡ suc n + suc n
 n+ss≡s+s n m rewrite +-comm n (suc n)
@@ -275,12 +262,21 @@ one-iso-O (aO {x} ox)
  | +-identityʳ (from x + from x)
  | +-identityʳ (from x)
  | n+n≡2x (+-mono-< (one-suc ox) (one-suc ox)) = refl
-one-iso-O (aI {x} ox) = {!!}
- -- rewrite one-iso-I ox
- -- | +-identityʳ (from x) = {!!}
+one-iso-O (aI {x} ox)
+ rewrite one-iso-I ox
+ | +-identityʳ (from x)
+ | +-identityʳ (from x + from x)
+ | +-comm (from x + from x) (suc (from x + from x))
+ | n+n≡2x (+-mono-< (one-suc ox) (one-suc ox))
+ | n+n≡2x (one-suc ox) = refl
 
 one-iso-I one = refl
-one-iso-I (aO ox) rewrite one-iso-O ox = {!!}
+one-iso-I (aO {x} ox)
+ rewrite one-iso-O ox
+ | +-identityʳ (from x)
+ | +-identityʳ (from x + from x)
+ | n+n≡2x (+-mono-< (one-suc ox) (one-suc ox))
+ | n+n≡2x (one-suc ox) = refl
 one-iso-I (aI {x} ox)
  rewrite +-identityʳ (from x + from x)
  | +-identityʳ (from x)
