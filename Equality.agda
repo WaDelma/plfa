@@ -133,6 +133,10 @@ open ≤-Reasoning
   ◾
 +-mono-≤ˡ {u} {v} {suc x} u≤v = start u + suc x ≤⟨ {!!} ⟩ v + suc x ◾
 
++-mono-≤ʳ : ∀ {v x y : ℕ} → x ≤ y → v + x ≤ v + y
++-mono-≤ʳ {zero} {x} {y} x≤y = x≤y
++-mono-≤ʳ {suc v} {x} {y} x≤y = start suc (v + x) ≤⟨ {!!} ⟩ {!!}
+
 +-mono-≤ : ∀ {u v x y : ℕ} → u ≤ v → x ≤ y → u + x ≤ v + y
 +-mono-≤ {u} {v} {x} {y} u≤v x≤y = start
     u + x
