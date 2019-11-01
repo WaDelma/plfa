@@ -121,27 +121,114 @@ module ≤-Reasoning where
 
 open ≤-Reasoning
 
+n+0≤n : ∀ {n : ℕ} → n + zero ≤ n
+n+0≤n {zero} = z≤n
+n+0≤n {suc n} = s≤s n+0≤n
+
+n≤n+0 : ∀ {n : ℕ} → n ≤ n + zero
+n≤n+0 {zero} = z≤n
+n≤n+0 {suc n} = s≤s n≤n+0
+
+chain-≤-≡ : ∀ {x y z : ℕ} → x ≤ y → y ≡ z → x ≤ z
+chain-≤-≡ z≤n refl = z≤n
+chain-≤-≡ (s≤s x≤y) refl = s≤s x≤y
+
+chain-≡-≤ : ∀ {x y z : ℕ} → x ≡ y → y ≤ z → x ≤ z
+chain-≡-≤ refl z≤n = z≤n
+chain-≡-≤ refl (s≤s y≤z) = s≤s y≤z
+
+≡-implies-≤ : ∀ {x y : ℕ} → x ≡ y → x ≤ y
+≡-implies-≤ {zero} refl = z≤n
+≡-implies-≤ {suc x} refl = s≤s (≡-implies-≤ refl)
+
 +-mono-≤ˡ : ∀ {u v x : ℕ} → u ≤ v → u + x ≤ v + x
 +-mono-≤ˡ {u} {v} {zero} u≤v = start
     u + zero
-  ≤⟨ {!!} ⟩
+  ≤⟨ n+0≤n ⟩
     u
   ≤⟨ u≤v ⟩
     v
-  ≤⟨ {!!} ⟩
+  ≤⟨ n≤n+0 ⟩
     v + zero
   ◾
-+-mono-≤ˡ {u} {v} {suc x} u≤v = start u + suc x ≤⟨ {!!} ⟩ v + suc x ◾
++-mono-≤ˡ {u} {v} {suc x} u≤v = start
+    u + suc x
+  ≤⟨ chain-≤-≡ (≡-implies-≤ refl) (+-suc u x) ⟩
+    suc (u + x)
+  ≤⟨ s≤s (+-mono-≤ˡ u≤v) ⟩
+    suc (v + x)
+  ≤⟨ chain-≡-≤ (sym (+-suc v x)) (≡-implies-≤ refl) ⟩
+    v + suc x
+  ◾
 
 +-mono-≤ʳ : ∀ {v x y : ℕ} → x ≤ y → v + x ≤ v + y
 +-mono-≤ʳ {zero} {x} {y} x≤y = x≤y
-+-mono-≤ʳ {suc v} {x} {y} x≤y = start suc (v + x) ≤⟨ {!!} ⟩ {!!}
++-mono-≤ʳ {suc v} {x} {y} x≤y = start
+    suc (v + x)
+  ≤⟨ s≤s (+-mono-≤ʳ {v} x≤y) ⟩
+    suc (v + y)
+  ◾
 
 +-mono-≤ : ∀ {u v x y : ℕ} → u ≤ v → x ≤ y → u + x ≤ v + y
 +-mono-≤ {u} {v} {x} {y} u≤v x≤y = start
     u + x
   ≤⟨ +-mono-≤ˡ u≤v ⟩
     v + x
-  ≤⟨ {!!} ⟩
+  ≤⟨ +-mono-≤ʳ {v} x≤y ⟩
     v + y
   ◾
+
+data even : ℕ → Set
+data odd  : ℕ → Set
+
+data even where
+
+  even-zero : even zero
+
+  even-suc : ∀ {n : ℕ}
+    → odd n
+      ------------
+    → even (suc n)
+
+data odd where
+  odd-suc : ∀ {n : ℕ}
+    → even n
+      -----------
+    → odd (suc n)
+
+{-# BUILTIN EQUALITY _≡_ #-}
+
+even-comm : ∀ (m n : ℕ) → even (m + n) → even (n + m)
+even-comm m n ev rewrite +-comm m n = ev
+
+_≐_ : ∀ {A : Set} (x y : A) → Set₁
+_≐_ {A} x y = ∀ (P : A → Set) → P x → P y
+
+refl-≐ : ∀ {A : Set} {x : A} → x ≐ x
+refl-≐ P px = px
+
+trans-≐ : ∀ {A : Set} {x y z : A} → x ≐ y → y ≐ z → x ≐ z
+trans-≐ x≐y y≐z P px = y≐z P (x≐y P px)
+
+sym-≐ : ∀ {A : Set} {x y : A} → x ≐ y → y ≐ x
+sym-≐ {A} {x} {y} x≐y P py = let
+    Q : A → Set
+    Q z = P z → P x
+
+    f : (P x → P x) → P y → P x
+    f = x≐y Q
+    
+    g : P y → P x
+    g = f (λ x → x)
+  in
+    g py
+
+≡-implies-≐ : ∀ {A : Set} {x y : A} → x ≡ y → x ≐ y
+≡-implies-≐ x≡y P = subst P x≡y
+
+≐-implies-≡ : ∀ {A : Set} {x y : A} → x ≐ y → x ≡ y
+≐-implies-≡ {A} {x} {y} x≐y = let
+    a = ?
+  in
+    ?
+
