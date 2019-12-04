@@ -228,7 +228,17 @@ sym-≐ {A} {x} {y} x≐y P py = let
 
 ≐-implies-≡ : ∀ {A : Set} {x y : A} → x ≐ y → x ≡ y
 ≐-implies-≡ {A} {x} {y} x≐y = let
-    a = ?
+    Q : A → Set
+    Q z = z ≡ y → x ≡ y
+
+    Qx : Q x
+    Qx = {!!}
+
+    f : (x ≡ y → x ≡ y) → y ≡ y → x ≡ y
+    f = x≐y Q
+
+    g : y ≡ y → x ≡ y
+    g = f (λ xx → xx)
   in
-    ?
+    g refl
 
