@@ -211,17 +211,17 @@ trans-≐ : ∀ {A : Set} {x y z : A} → x ≐ y → y ≐ z → x ≐ z
 trans-≐ x≐y y≐z P px = y≐z P (x≐y P px)
 
 sym-≐ : ∀ {A : Set} {x y : A} → x ≐ y → y ≐ x
-sym-≐ {A} {x} {y} x≐y P py = let
+sym-≐ {A} {x} {y} x≐y P = let
     Q : A → Set
     Q z = P z → P x
 
-    f : (P x → P x) → P y → P x
-    f = x≐y Q
-    
-    g : P y → P x
-    g = f (λ x → x)
+    Qx : Q x
+    Qx = refl-≐ P
+
+    Qy : Q y
+    Qy = x≐y Q Qx
   in
-    g py
+    Qy
 
 ≡-implies-≐ : ∀ {A : Set} {x y : A} → x ≡ y → x ≐ y
 ≡-implies-≐ x≡y P = subst P x≡y
@@ -229,16 +229,15 @@ sym-≐ {A} {x} {y} x≐y P py = let
 ≐-implies-≡ : ∀ {A : Set} {x y : A} → x ≐ y → x ≡ y
 ≐-implies-≡ {A} {x} {y} x≐y = let
     Q : A → Set
-    Q z = z ≡ y → x ≡ y
+    Q z = x ≡ z
 
     Qx : Q x
-    Qx = {!!}
+    Qx = refl
 
-    f : (x ≡ y → x ≡ y) → y ≡ y → x ≡ y
-    f = x≐y Q
-
-    g : y ≡ y → x ≡ y
-    g = f (λ xx → xx)
+    Qy : Q y
+    Qy = x≐y Q Qx
   in
-    g refl
+    Qy
+
+open import Level using (Level; _⊔_) renaming (zero to lzero; suc to lsuc)
 
