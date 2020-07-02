@@ -134,33 +134,33 @@ from ⟨⟩ = 0
 from (x O) = 2 * (from x)
 from (x I) = 2 * (from x) + 1
 
-_ : 0 ≡ from (to 0)
+_ : 0 ≡ from (⟨⟩ O)
 _ = refl
 
-_ : ⟨⟩ O ≡ to (from (⟨⟩ O))
+_ : ⟨⟩ O ≡ to 0
 _ = refl
 
-_ : 1 ≡ from (to 1)
+_ : 1 ≡ from (⟨⟩ I)
 _ = refl
 
-_ : ⟨⟩ I ≡ to (from (⟨⟩ I))
+_ : ⟨⟩ I ≡ to 1
 _ = refl
 
-_ : 2 ≡ from (to 2)
+_ : 2 ≡ from (⟨⟩ I O)
 _ = refl
 
-_ : ⟨⟩ I O ≡ to (from (⟨⟩ I O))
+_ : ⟨⟩ I O ≡ to 2
 _ = refl
 
-_ : 3 ≡ from (to 3)
+_ : 3 ≡ from (⟨⟩ I I)
 _ = refl
 
-_ : ⟨⟩ I I ≡ to (from (⟨⟩ I I))
+_ : ⟨⟩ I I ≡ to 3
 _ = refl
 
-_ : 4 ≡ from (to 4)
+_ : 4 ≡ from (⟨⟩ I O O)
 _ = refl
 
-_ : ⟨⟩ I O O ≡ to (from (⟨⟩ I O O))
+_ : ⟨⟩ I O O ≡ to 4
 _ = refl
 
