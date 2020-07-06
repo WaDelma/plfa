@@ -188,14 +188,13 @@ n*0=0 (suc m)
 ∸-identity zero = refl
 ∸-identity (suc n) = refl
 
--- Exercise ∸-|-assoc
-∸-|-assoc : ∀ (m n p : ℕ) → m ∸ n ∸ p ≡ m ∸ (n + p)
-∸-|-assoc zero zero p = refl
-∸-|-assoc zero (suc n) zero = refl
-∸-|-assoc zero (suc n) (suc p) = refl
-∸-|-assoc (suc m) zero p = refl
-∸-|-assoc (suc m) (suc n) p
-  rewrite ∸-|-assoc m n p = refl
+-- Exercise ∸-+-assoc
+∸-+-assoc : ∀ (m n p : ℕ) → m ∸ n ∸ p ≡ m ∸ (n + p)
+∸-+-assoc zero zero p = refl
+∸-+-assoc zero (suc n) zero = refl
+∸-+-assoc zero (suc n) (suc p) = refl
+∸-+-assoc (suc m) zero p = refl
+∸-+-assoc (suc m) (suc n) p = ∸-+-assoc m n p
 
 -- Exercise +*^
 1^n=1 : ∀ (n : ℕ) → 1 ^ n ≡ 1

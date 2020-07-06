@@ -68,8 +68,6 @@ open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_; _^_)
         | +-assoc n m p
         = refl
 
-
-
 -- Exercise *-distrib-+
 *-distrib-+ : ∀ (m n p : ℕ) → (m + n) * p ≡ m * p + n * p
 *-distrib-+ m zero p
@@ -158,9 +156,8 @@ open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_; _^_)
   rewrite ^-distribʳ-* m (m ^ n) p
         | ^-distribˡ-+-* m p (n * p)
         | ^-*-assoc m n p  = refl
-
+        
 -- Exercise Bin-laws
-
 data Bin : Set where
  ⟨⟩ : Bin
  _O : Bin → Bin

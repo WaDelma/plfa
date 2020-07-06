@@ -1,6 +1,5 @@
 module Naturals2 where
 
-
 data ℕ : Set where
   zero : ℕ
   suc : ℕ → ℕ
@@ -13,7 +12,6 @@ import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _∎)
 
-
 _+_ : ℕ → ℕ → ℕ
 zero + n = n
 (suc m) + n = suc (m + n)
@@ -23,7 +21,7 @@ _ : 3 + 4 ≡ 7
 _ =
   begin
     3 + 4
-  ≡⟨⟩
+  ≡⟨⟩ 
     suc (2 + 4)
   ≡⟨⟩
     suc (suc (1 + 4))
@@ -111,7 +109,7 @@ data Bin : Set where
 inc : Bin → Bin
 inc ⟨⟩ = ⟨⟩ I
 inc (x O) = x I
-inc (x I) = (inc x) O
+inc (x I) = inc x O
 
 _ : inc (⟨⟩ I O I I) ≡ ⟨⟩ I I O O
 _ =
