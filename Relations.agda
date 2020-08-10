@@ -1,4 +1,4 @@
-module plfa.Relations where
+module Relations where
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; sym; subst)
@@ -165,7 +165,7 @@ o+o≡e {suc m} {n} (suc em) on = suc (+-comm-odd {n} {m} (o+e≡o on em))
 
 -- Exercise Bin-predicates
 
-open import plfa.Induction using (Bin; _I; _O; ⟨⟩; inc; to; from)
+open import Induction2 using (Bin; _I; _O; ⟨⟩; inc; to; from)
 
 data One : Bin → Set where
   one : One (⟨⟩ I)
@@ -231,10 +231,14 @@ one-to (suc n) = inc-preserves-one (one-to n)
 -- <-weaken-+ (suc o) z<s = z<s
 -- <-weaken-+ (suc o) (s<s x) = s<s (<-weaken-+ o (<-weaken x))
 
+1-suc : ∀ {n : ℕ} → n + 1 ≡ suc n
+1-suc {zero} = refl
+1-suc {suc n} = cong suc 1-suc
+
 one-suc : ∀{x : Bin} → One x → 0 < from x
 one-suc one = z<s
 one-suc (aO {x} ox) rewrite +-identityʳ (from x) = let as = one-suc ox in +-mono-< as as
-one-suc (aI {x} ox) = z<s
+one-suc (aI {x} ox) rewrite +-identityʳ (from x) | 1-suc {from x + from x} = z<s
 
 -- +-mono-≡ : ∀ {m n p q : ℕ} → m ≡ n → p ≡ q → m + p ≡ n + q
 -- +-mono-≡ refl refl = refl
@@ -259,25 +263,29 @@ one-iso-O (aO {x} ox)
  | +-identityʳ (from x)
  | n+n≡2x (+-mono-< (one-suc ox) (one-suc ox)) = refl
 one-iso-O (aI {x} ox)
- rewrite one-iso-I ox
- | +-identityʳ (from x)
- | +-identityʳ (from x + from x)
- | +-comm (from x + from x) (suc (from x + from x))
- | n+n≡2x (+-mono-< (one-suc ox) (one-suc ox))
- | n+n≡2x (one-suc ox) = refl
+  rewrite one-iso-I ox
+  | +-identityʳ (from x)
+  | +-identityʳ (from x + from x + 1)
+  | 1-suc {from x + from x}
+  | +-comm (from x + from x) (suc (from x + from x))
+  | n+n≡2x (+-mono-< (one-suc ox) (one-suc ox))
+  | n+n≡2x (one-suc ox) = refl
 
 one-iso-I one = refl
 one-iso-I (aO {x} ox)
  rewrite one-iso-O ox
  | +-identityʳ (from x)
  | +-identityʳ (from x + from x)
+ | 1-suc {from x + from x + (from x + from x)}
  | n+n≡2x (+-mono-< (one-suc ox) (one-suc ox))
  | n+n≡2x (one-suc ox) = refl
 one-iso-I (aI {x} ox)
  rewrite +-identityʳ (from x + from x)
  | +-identityʳ (from x)
+ | 1-suc {from x + from x}
  | +-comm (from x + from x) (suc (from x + from x + 0))
  | +-identityʳ (from x + from x)
+ | 1-suc {from x + from x + (from x + from x)}
  | n+n≡2x (+-mono-< (one-suc ox) (one-suc ox)) = refl
 
 can-iso : ∀ {x : Bin} → Can x → to (from x) ≡ x
