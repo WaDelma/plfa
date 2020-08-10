@@ -203,7 +203,7 @@ open _⇔_
 ⇔-trans A⇔B B⇔C = record
   { to = to A⇔B ⍮ to B⇔C
   ; from = from A⇔B ∘ from B⇔C
-  }
+  } 
 
 data Bin : Set where
  ⟨⟩ : Bin
