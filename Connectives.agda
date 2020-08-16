@@ -166,6 +166,15 @@ currying = record
   ; to∘from = λ{ ⟨ f , g ⟩ → refl}
   }
 
+→-distrib-× : ∀ {A B C : Set} → (A → B × C) ≃ (A → B) × (A → C)
+→-distrib-× =
+  record
+    { to      = λ{ f → ⟨ proj₁ ∘ f , proj₂ ∘ f ⟩ }
+    ; from    = λ{ ⟨ g , h ⟩ → λ x → ⟨ g x , h x ⟩ }
+    ; from∘to = λ{ f → extensionality λ{ x → η-× (f x) } }
+    ; to∘from = λ{ ⟨ g , h ⟩ → refl }
+    }
+
 
 ×-distrib-⊎ : ∀ {A B C : Set} → (A ⊎ B) × C ≃ (A × C) ⊎ (B × C)
 ×-distrib-⊎ = record
