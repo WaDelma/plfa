@@ -121,15 +121,11 @@ inv-s<s : ∀ {m n : ℕ} → suc m < suc n → m < n
 inv-s<s (s<s m<n) = m<n
 
 ≤-implies-< : ∀ {m n : ℕ} → suc m ≤ n → m < n
-≤-implies-< {zero} {zero} ()
 ≤-implies-< {zero} {suc n} sm≤n = z<s
-≤-implies-< {suc m} {zero} ()
 ≤-implies-< {suc m} {suc n} sm≤n = s<s (≤-implies-< (inv-s≤s sm≤n))
 
 <-implies-≤ : ∀ {m n : ℕ} → m < n → suc m ≤ n
-<-implies-≤ {zero} {zero} ()
 <-implies-≤ {zero} {suc n} m<n = s≤s z≤n
-<-implies-≤ {suc m} {zero} ()
 <-implies-≤ {suc m} {suc n} m<n = s≤s (<-implies-≤ (inv-s<s m<n))
 
 <-weaken : ∀ {m n : ℕ} → m < n → m < suc n
@@ -165,7 +161,7 @@ o+e≡o (suc em) en = suc (e+e≡e em en)
   rewrite +-comm n (suc m) = omn
 
 o+o≡e : ∀ {m n : ℕ} → odd m → odd n → even (m + n)
-o+o≡e {suc m} {n} (suc em) on  = suc (+-comm-odd {n} {m} (o+e≡o on em))
+o+o≡e {suc m} {n} (suc em) on = suc (+-comm-odd {n} {m} (o+e≡o on em))
 
 -- Exercise Bin-predicates
 

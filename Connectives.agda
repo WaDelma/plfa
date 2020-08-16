@@ -34,6 +34,7 @@ infixr 2 _×_
 ×-assoc : ∀ {A B C : Set} → (A × B) × C → A × (B × C)
 ×-assoc ⟨ ⟨ x , y ⟩ , z ⟩ = ⟨ x , ⟨ y , z ⟩ ⟩
 
+-- Exercise ⇔≃×
 ⇔≃× : ∀ {A B : Set} → A ⇔ B ≃ (A → B) × (B → A)
 ⇔≃× = record
   { to = λ x → ⟨ to x , from x ⟩
@@ -71,6 +72,7 @@ case-⊎ a→c b→c (inj₂ b) = b→c b
 
 infixr 1 _⊎_
 
+-- Exercise ⊎-comm
 ⊎-comm : ∀ {A B : Set} → A ⊎ B ≃ B ⊎ A
 ⊎-comm = record
   { to = λ
@@ -91,6 +93,7 @@ infixr 1 _⊎_
     }
   }
 
+-- Exercise ⊎-assoc
 ⊎-assoc : ∀ {A B C : Set} → (A ⊎ B) ⊎ C ≃ A ⊎ (B ⊎ C)
 ⊎-assoc = record
   { to = λ
@@ -120,6 +123,7 @@ data ⊥ : Set where
 ⊥-elim : ∀ {A : Set} → ⊥ → A
 ⊥-elim ()
 
+-- Exercise ⊥-identityˡ
 ⊥-identityˡ : ∀ {A : Set} → ⊥ ⊎ A ≃ A
 ⊥-identityˡ = record
   { to = λ{ (inj₂ x) → x}
@@ -128,6 +132,7 @@ data ⊥ : Set where
   ; to∘from = λ y → refl
   }
 
+-- Exercise ⊥-identityʳ
 ⊥-identityʳ : ∀ {A : Set} → A ⊎ ⊥ ≃ A
 ⊥-identityʳ {A} = ≃-begin
     (A ⊎ ⊥)
@@ -214,12 +219,13 @@ currying = record
     }
   }
 
+-- Exercise ⊎-weak-×
 ⊎-weak-× : ∀{A B C : Set} → (A ⊎ B) × C → A ⊎ (B × C)
 ⊎-weak-× ⟨ inj₁ a , c ⟩ = inj₁ a
 ⊎-weak-× ⟨ inj₂ b , c ⟩ = inj₂ ⟨ b , c ⟩
 
+-- Exercise ⊎×-implies-×⊎
 ⊎×-implies-×⊎ : ∀ {A B C D : Set} → (A × B) ⊎ (C × D) → (A ⊎ C) × (B ⊎ D)
 ⊎×-implies-×⊎ (inj₁ ⟨ a , b ⟩) = ⟨ inj₁ a , inj₁ b ⟩
 ⊎×-implies-×⊎ (inj₂ ⟨ c , d ⟩) = ⟨ inj₂ c , inj₂ d ⟩
-
 
